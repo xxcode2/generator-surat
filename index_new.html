@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Surat Desa - Sistem Administrasi Digital</title>
+    
+    <!-- External Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* Print Styles */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: white !important;
+            }
+            .print-page {
+                page-break-after: always;
+                margin: 0;
+                padding: 0;
+                box-shadow: none !important;
+            }
+        }
+        
+        /* Print Page Styling - Word-like format */
+        .print-page {
+            background: white;
+            min-height: 29.7cm;
+            width: 21cm;
+            margin: 0 auto;
+            padding: 2.5cm 3cm;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 12pt;
+            line-height: 1.5;
+        }
+        
+        /* Button Animations */
+        .nav-button {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .nav-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+        
+        .card-hover {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+        }
+        
+        /* Fade In Animation */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        /* Smooth Scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Focus Styles for Accessibility */
+        *:focus-visible {
+            outline: 3px solid #4f46e5;
+            outline-offset: 2px;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .print-page {
+                width: 100%;
+                padding: 1cm;
+            }
+        }
+    </style>
+</head>
+
+<body class="h-full w-full bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div class="h-full w-full overflow-auto">
+        
+        <!-- MAIN NAVIGATION -->
+        <nav id="mainNav" class="no-print bg-white shadow-md sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <!-- Logo & Title -->
+                    <div class="flex items-center space-x-3">
+                        <div class="text-3xl sm:text-4xl">🏛️</div>
+                        <div>
+                            <h1 class="text-xl sm:text-2xl font-bold text-gray-800">Generator Surat Desa</h1>
+                            <p class="text-xs sm:text-sm text-gray-600">Sistem Administrasi Digital</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Navigation Buttons -->
+                    <div class="flex flex-wrap justify-center gap-2 sm:gap-3">
+                        <button id="btnProfil" 
+                                class="nav-button bg-purple-600 text-white px-4 sm:px-6 py-2.5 rounded-lg font-semibold shadow-md hover:bg-purple-700">
+                            ⚙️ Profil
+                        </button>
+                        <button id="btnBuatSurat" 
+                                class="nav-button bg-indigo-600 text-white px-4 sm:px-6 py-2.5 rounded-lg font-semibold shadow-md hover:bg-indigo-700">
+                            ➕ Buat Surat
+                        </button>
+                        <button id="btnArsip" 
+                                class="nav-button bg-green-600 text-white px-4 sm:px-6 py-2.5 rounded-lg font-semibold shadow-md hover:bg-green-700">
+                            📂 Arsip
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- HOME SECTION - Main Dashboard -->
+        <main id="homeSection" class="max-w-7xl mx-auto px-4 sm:px-6 py-10 fade-in">
+            <!-- Category Cards -->
+            <div class="grid md:grid-cols-2 gap-6 sm:gap-8 mb-10">
+                <!-- Surat Keputusan Card -->
+                <article class="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-xl p-6 sm:p-8 text-white card-hover cursor-pointer" 
+                     onclick="showKategori('sk')">
+                    <div class="text-5xl sm:text-6xl mb-4">📜</div>
+                    <h2 class="text-2xl sm:text-3xl font-bold mb-3">Surat Keputusan</h2>
+                    <p class="text-blue-100 mb-4 text-sm sm:text-base">Buat SK pengangkatan RT, RW, dan Perangkat Desa</p>
+                    <div class="flex items-center text-blue-100">
+                        <span class="text-sm">Klik untuk memilih</span>
+                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </article>
+
+                <!-- Surat Keterangan Card -->
+                <article class="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl shadow-xl p-6 sm:p-8 text-white card-hover cursor-pointer" 
+                     onclick="showKategori('sket')">
+                    <div class="text-5xl sm:text-6xl mb-4">📋</div>
+                    <h2 class="text-2xl sm:text-3xl font-bold mb-3">Surat Keterangan</h2>
+                    <p class="text-green-100 mb-4 text-sm sm:text-base">Buat surat keterangan domisili, usaha, dan lainnya</p>
+                    <div class="flex items-center text-green-100">
+                        <span class="text-sm">Klik untuk memilih</span>
+                        <svg class="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </div>
+                </article>
+            </div>
+
+            <!-- Statistics Dashboard -->
+            <section class="bg-white rounded-xl shadow-lg p-4 sm:p-6">
+                <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-4">
+                    📊 Statistik Surat
+                </h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+                    <div class="bg-blue-50 rounded-lg p-3 sm:p-4 text-center">
+                        <div class="text-2xl sm:text-3xl font-bold text-blue-600" id="statSK">0</div>
+                        <div class="text-xs sm:text-sm text-gray-600 mt-1">Surat Keputusan</div>
+                    </div>
+                    <div class="bg-green-50 rounded-lg p-3 sm:p-4 text-center">
+                        <div class="text-2xl sm:text-3xl font-bold text-green-600" id="statSKET">0</div>
+                        <div class="text-xs sm:text-sm text-gray-600 mt-1">Surat Keterangan</div>
+                    </div>
+                    <div class="bg-purple-50 rounded-lg p-3 sm:p-4 text-center">
+                        <div class="text-2xl sm:text-3xl font-bold text-purple-600" id="statTotal">0</div>
+                        <div class="text-xs sm:text-sm text-gray-600 mt-1">Total Surat</div>
+                    </div>
+                    <div class="bg-orange-50 rounded-lg p-3 sm:p-4 text-center">
+                        <div class="text-2xl sm:text-3xl font-bold text-orange-600" id="statBulanIni">0</div>
+                        <div class="text-xs sm:text-sm text-gray-600 mt-1">Bulan Ini</div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- KATEGORI SECTION - Template Selection -->
+        <section id="kategoriSection" class="hidden max-w-5xl mx-auto px-4 sm:px-6 py-10 fade-in">
+            <!-- Back Button -->
+            <button onclick="backToHome()" 
+                    class="mb-6 text-gray-600 hover:text-gray-800 flex items-center transition-colors">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                Kembali
+            </button>
+
+            <!-- SK Templates -->
+            <div id="skKategori" class="hidden">
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-6">
+                    📜 Pilih Jenis Surat Keputusan
+                </h2>
+                <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+                    <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6 card-hover cursor-pointer" 
+                         onclick="pilihJenisSurat('sk_rt')">
+                        <div class="text-4xl sm:text-5xl mb-3">👤</div>
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-2">SK RT</h3>
+                        <p class="text-gray-600 text-xs sm:text-sm">Pengangkatan Ketua RT</p>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6 card-hover cursor-pointer" 
+                         onclick="pilihJenisSurat('sk_rw')">
+                        <div class="text-4xl sm:text-5xl mb-3">👥</div>
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-2">SK RW</h3>
+                        <p class="text-gray-600 text-xs sm:text-sm">Pengangkatan Ketua RW</p>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6 card-hover cursor-pointer" 
+                         onclick="pilihJenisSurat('sk_perangkat')">
+                        <div class="text-4xl sm:text-5xl mb-3">👔</div>
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-2">SK Perangkat</h3>
+                        <p class="text-gray-600 text-xs sm:text-sm">Pengangkatan Perangkat Desa</p>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6 card-hover cursor-pointer" 
+                         onclick="pilihJenisSurat('sk_karang_taruna')">
+                        <div class="text-4xl sm:text-5xl mb-3">🎯</div>
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-2">SK Karang Taruna</h3>
+                        <p class="text-gray-600 text-xs sm:text-sm">Pengangkatan Pengurus</p>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6 card-hover cursor-pointer" 
+                         onclick="pilihJenisSurat('sk_pkk')">
+                        <div class="text-4xl sm:text-5xl mb-3">👩</div>
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-2">SK PKK</h3>
+                        <p class="text-gray-600 text-xs sm:text-sm">Pengangkatan Pengurus PKK</p>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6 card-hover cursor-pointer" 
+                         onclick="pilihJenisSurat('sk_bumdes')">
+                        <div class="text-4xl sm:text-5xl mb-3">🏢</div>
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-2">SK BUMDes</h3>
+                        <p class="text-gray-600 text-xs sm:text-sm">Pengangkatan Pengurus BUMDes</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SKET Templates -->
+            <div id="sketKategori" class="hidden">
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-6">
+                    📋 Pilih Jenis Surat Keterangan
+                </h2>
+                <div class="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+                    <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6 card-hover cursor-pointer" 
+                         onclick="pilihJenisSurat('sket_domisili')">
+                        <div class="text-4xl sm:text-5xl mb-3">🏠</div>
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-2">Domisili</h3>
+                        <p class="text-gray-600 text-xs sm:text-sm">Keterangan tempat tinggal</p>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6 card-hover cursor-pointer" 
+                         onclick="pilihJenisSurat('sket_usaha')">
+                        <div class="text-4xl sm:text-5xl mb-3">🏪</div>
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-2">Usaha</h3>
+                        <p class="text-gray-600 text-xs sm:text-sm">Keterangan memiliki usaha</p>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6 card-hover cursor-pointer" 
+                         onclick="pilihJenisSurat('sket_tidak_mampu')">
+                        <div class="text-4xl sm:text-5xl mb-3">🤝</div>
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-2">Tidak Mampu</h3>
+                        <p class="text-gray-600 text-xs sm:text-sm">Keterangan ekonomi lemah</p>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6 card-hover cursor-pointer" 
+                         onclick="pilihJenisSurat('sket_kelahiran')">
+                        <div class="text-4xl sm:text-5xl mb-3">👶</div>
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-2">Kelahiran</h3>
+                        <p class="text-gray-600 text-xs sm:text-sm">Keterangan kelahiran bayi</p>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6 card-hover cursor-pointer" 
+                         onclick="pilihJenisSurat('sket_kematian')">
+                        <div class="text-4xl sm:text-5xl mb-3">🕊️</div>
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-2">Kematian</h3>
+                        <p class="text-gray-600 text-xs sm:text-sm">Keterangan kematian</p>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl shadow-lg p-4 sm:p-6 card-hover cursor-pointer" 
+                         onclick="pilihJenisSurat('sket_penghasilan')">
+                        <div class="text-4xl sm:text-5xl mb-3">💰</div>
+                        <h3 class="text-lg sm:text-xl font-bold text-gray-800 mb-2">Penghasilan</h3>
+                        <p class="text-gray-600 text-xs sm:text-sm">Keterangan penghasilan</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FORM SECTION - Data Input -->
+        <section id="formSection" class="hidden max-w-4xl mx-auto px-4 sm:px-6 py-10 fade-in">
+            <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8 mb-6">
+                <!-- Back Button -->
+                <button onclick="backToKategori()" 
+                        class="mb-6 text-gray-600 hover:text-gray-800 flex items-center transition-colors">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                    Kembali
+                </button>
+                
+                <!-- Form Header -->
+                <div class="flex items-center mb-6">
+                    <div class="text-3xl sm:text-4xl mr-4" id="formIcon">📄</div>
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-bold text-gray-800" id="formTitle">Form Surat</h2>
+                        <p class="text-sm sm:text-base text-gray-600" id="formSubtitle">Isi data dengan lengkap</p>
+                    </div>
+                </div>
+                
+                <!-- Auto-generated Letter Number -->
+                <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 mb-6">
+                    <label for="nomorSuratAuto" class="block text-xs sm:text-sm font-semibold text-gray-700 mb-2">
+                        Nomor Surat (Otomatis)
+                    </label>
+                    <input type="text" id="nomorSuratAuto" readonly 
+                           class="w-full px-3 sm:px-4 py-2 sm:py-3 bg-white border-2 border-blue-300 rounded-lg font-mono text-base sm:text-lg font-semibold text-blue-700">
+                </div>
+                
+                <!-- Dynamic Form Container -->
+                <div id="formContainer"></div>
+                
+                <!-- Generate Button -->
+                <button id="generateBtn" 
+                        class="w-full bg-gradient-to-r from-indigo-600 to-blue-600 text-white py-3 sm:py-4 rounded-lg font-semibold hover:from-indigo-700 hover:to-blue-700 transition shadow-lg mt-6">
+                    ✨ Generate Surat
+                </button>
+            </div>
+        </section>
+
+        <!-- PROFIL SECTION - Institution Profile Management -->
+        <section id="profilSection" class="hidden max-w-7xl mx-auto px-4 sm:px-6 py-10 fade-in">
+            <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8 mb-6">
+                <!-- Header -->
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-bold text-gray-800">
+                            ⚙️ Manajemen Profil Surat
+                        </h2>
+                        <p class="text-sm sm:text-base text-gray-600">Kelola kop surat untuk SK dan Surat Keterangan</p>
+                    </div>
+                    <button onclick="backToHome()" 
+                            class="bg-gray-600 text-white px-4 sm:px-6 py-2.5 rounded-lg font-semibold hover:bg-gray-700 transition">
+                        Tutup
+                    </button>
+                </div>
+                
+                <!-- Tabs for SK and SKET -->
+                <div class="flex gap-2 mb-6 border-b-2">
+                    <button id="tabSK" onclick="switchProfilTab('sk')" 
+                            class="px-6 py-3 font-semibold border-b-4 border-blue-600 text-blue-600">
+                        📜 Profil SK
+                    </button>
+                    <button id="tabSKET" onclick="switchProfilTab('sket')" 
+                            class="px-6 py-3 font-semibold border-b-4 border-transparent text-gray-500 hover:text-gray-700">
+                        📋 Profil Surat Keterangan
+                    </button>
+                </div>
+
+                <!-- SK Profile Content -->
+                <div id="skProfilContent">
+                    <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-6 mb-6">
+                        <h3 class="font-bold text-lg mb-4">📜 Kop Surat Keputusan</h3>
+                        <button onclick="editProfilSK()" 
+                                class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-xl font-bold hover:from-blue-700 hover:to-indigo-700 transition shadow-lg">
+                            ✏️ Edit Profil SK
+                        </button>
+                        <div id="skProfilPreview" class="mt-4 p-4 bg-white rounded-lg border-2 border-gray-200">
+                            <p class="text-gray-500 text-center">Belum ada profil SK. Klik tombol di atas untuk membuat.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SKET Profile Content -->
+                <div id="sketProfilContent" class="hidden">
+                    <div class="bg-green-50 border-2 border-green-200 rounded-xl p-6 mb-6">
+                        <h3 class="font-bold text-lg mb-4">📋 Kop Surat Keterangan</h3>
+                        <button onclick="editProfilSKET()" 
+                                class="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 rounded-xl font-bold hover:from-green-700 hover:to-emerald-700 transition shadow-lg">
+                            ✏️ Edit Profil Surat Keterangan
+                        </button>
+                        <div id="sketProfilPreview" class="mt-4 p-4 bg-white rounded-lg border-2 border-gray-200">
+                            <p class="text-gray-500 text-center">Belum ada profil Surat Keterangan. Klik tombol di atas untuk membuat.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ARSIP SECTION - Letter Archive -->
+        <section id="arsipSection" class="hidden max-w-7xl mx-auto px-4 sm:px-6 py-10 fade-in">
+            <div class="bg-white rounded-2xl shadow-xl p-6 sm:p-8">
+                <!-- Header -->
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-bold text-gray-800">📂 Arsip Surat</h2>
+                        <p class="text-sm sm:text-base text-gray-600">Riwayat surat yang telah dibuat</p>
+                    </div>
+                    <button onclick="backToHome()" 
+                            class="bg-gray-600 text-white px-4 sm:px-6 py-2.5 rounded-lg font-semibold hover:bg-gray-700 transition">
+                        Tutup
+                    </button>
+                </div>
+                
+                <!-- Filter Controls -->
+                <div class="mb-6 flex flex-col sm:flex-row gap-3">
+                    <select id="filterKategori" onchange="filterArsip()"
+                            class="px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:outline-none">
+                        <option value="all">Semua Kategori</option>
+                        <option value="sk">Surat Keputusan</option>
+                        <option value="sket">Surat Keterangan</option>
+                    </select>
+                    <input type="text" id="searchArsip" oninput="filterArsip()"
+                           placeholder="Cari nama atau nomor surat..." 
+                           class="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:outline-none">
+                </div>
+                
+                <!-- Archive List -->
+                <div id="arsipList" class="space-y-3"></div>
+                
+                <!-- Empty State -->
+                <div id="emptyArsip" class="hidden text-center py-12">
+                    <div class="text-6xl mb-4">📭</div>
+                    <p class="text-gray-500 text-lg">Belum ada arsip surat</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- PREVIEW & PRINT SECTION -->
+        <section id="previewSection" class="hidden max-w-7xl mx-auto px-4 sm:px-6 py-10 fade-in">
+            <!-- Action Bar -->
+            <div class="no-print bg-white border-b-4 border-indigo-600 py-4 px-6 flex flex-wrap justify-between items-center sticky top-0 z-10 shadow-md rounded-t-xl mb-6 gap-3">
+                <h2 class="text-xl font-bold text-gray-800">👁️ Preview Surat</h2>
+                <div class="flex flex-wrap gap-3">
+                    <button id="editBtn" 
+                            class="px-4 sm:px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition font-medium">
+                        ✏️ Edit
+                    </button>
+                    <button id="downloadPdfBtn" 
+                            class="px-4 sm:px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium">
+                        📥 Download PDF
+                    </button>
+                    <button id="printBtn" 
+                            class="px-4 sm:px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition font-medium">
+                        🖨️ Cetak
+                    </button>
+                    <button id="backFromPreview" 
+                            class="px-4 sm:px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition font-medium">
+                        🏠 Beranda
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Letter Content -->
+            <div id="suratContent" class="print-page bg-white"></div>
+        </section>
+
+        <!-- MODAL: Edit Profile SK -->
+        <div id="editProfilSKModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 sm:p-6">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                <!-- Modal Header -->
+                <div class="sticky top-0 bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 rounded-t-2xl">
+                    <h2 class="text-2xl font-bold">✏️ Edit Profil Surat Keputusan</h2>
+                    <p class="text-blue-100 mt-1">Atur kop surat dan logo untuk Surat Keputusan</p>
+                </div>
+                
+                <!-- Modal Body -->
+                <div class="p-6 space-y-6">
+                    <!-- Logo Upload -->
+                    <div class="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
+                        <label class="block text-sm font-semibold text-gray-700 mb-3">🖼️ Logo Instansi</label>
+                        <div class="flex items-center gap-4">
+                            <img id="skLogoPreview" src="/public/assets/LOGO.png" alt="Logo" class="w-24 h-24 object-contain border-2 border-gray-300 rounded-lg">
+                            <div class="flex-1">
+                                <input type="file" id="skLogoInput" accept="image/*" 
+                                       class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none">
+                                <p class="text-xs text-gray-500 mt-2">Atau masukkan URL logo:</p>
+                                <input type="text" id="skLogoUrl" 
+                                       class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none mt-1"
+                                       placeholder="https://example.com/logo.png">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Header Information -->
+                    <div class="space-y-4">
+                        <h3 class="font-bold text-gray-800 text-lg">📋 Informasi Kop Surat</h3>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Pemerintah Daerah</label>
+                            <input type="text" id="skPemerintah" 
+                                   class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" 
+                                   placeholder="PEMERINTAH DAERAH KABUPATEN SUBANG">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Kecamatan</label>
+                            <input type="text" id="skKecamatan" 
+                                   class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" 
+                                   placeholder="KECAMATAN KASOMALANG">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Desa</label>
+                            <input type="text" id="skDesa" 
+                                   class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" 
+                                   placeholder="DESA KASOMALANG KULON">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Alamat Lengkap</label>
+                            <input type="text" id="skAlamat" 
+                                   class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" 
+                                   placeholder="Alamat: Jl. Raya Kasomalang No. 01 Kec. Kasomalang - Subang 41281">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Kepala Desa</label>
+                            <input type="text" id="skKepalaDesa" 
+                                   class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" 
+                                   placeholder="APIPUDIN,SIP">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Sekretaris Desa (Opsional)</label>
+                            <input type="text" id="skSekretaris" 
+                                   class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none" 
+                                   placeholder="Sekretaris Desa">
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="flex gap-3 mt-6">
+                        <button onclick="saveProfilSK()" 
+                                class="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-lg font-bold hover:from-blue-700 hover:to-indigo-700 transition shadow-lg">
+                            💾 Simpan Profil SK
+                        </button>
+                        <button onclick="closeProfilSKModal()" 
+                                class="px-6 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-400 transition">
+                            Batal
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL: Edit Profile SKET -->
+        <div id="editProfilSKETModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 sm:p-6">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                <!-- Modal Header -->
+                <div class="sticky top-0 bg-gradient-to-r from-green-600 to-emerald-600 text-white p-6 rounded-t-2xl">
+                    <h2 class="text-2xl font-bold">✏️ Edit Profil Surat Keterangan</h2>
+                    <p class="text-green-100 mt-1">Atur kop surat dan logo untuk Surat Keterangan</p>
+                </div>
+                
+                <!-- Modal Body -->
+                <div class="p-6 space-y-6">
+                    <!-- Logo Upload -->
+                    <div class="bg-green-50 border-2 border-green-200 rounded-lg p-4">
+                        <label class="block text-sm font-semibold text-gray-700 mb-3">🖼️ Logo Instansi</label>
+                        <div class="flex items-center gap-4">
+                            <img id="sketLogoPreview" src="/public/assets/LOGO.png" alt="Logo" class="w-24 h-24 object-contain border-2 border-gray-300 rounded-lg">
+                            <div class="flex-1">
+                                <input type="file" id="sketLogoInput" accept="image/*" 
+                                       class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none">
+                                <p class="text-xs text-gray-500 mt-2">Atau masukkan URL logo:</p>
+                                <input type="text" id="sketLogoUrl" 
+                                       class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none mt-1"
+                                       placeholder="https://example.com/logo.png">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Header Information -->
+                    <div class="space-y-4">
+                        <h3 class="font-bold text-gray-800 text-lg">📋 Informasi Kop Surat</h3>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Pemerintah Daerah</label>
+                            <input type="text" id="sketPemerintah" 
+                                   class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none" 
+                                   placeholder="PEMERINTAH DAERAH KABUPATEN SUBANG">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Kecamatan</label>
+                            <input type="text" id="sketKecamatan" 
+                                   class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none" 
+                                   placeholder="KECAMATAN KASOMALANG">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Desa</label>
+                            <input type="text" id="sketDesa" 
+                                   class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none" 
+                                   placeholder="DESA KASOMALANG KULON">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Alamat Lengkap</label>
+                            <input type="text" id="sketAlamat" 
+                                   class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none" 
+                                   placeholder="Alamat: Jl. Raya Kasomalang No. 01 Kec. Kasomalang - Subang 41281">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Kepala Desa (a.n)</label>
+                            <input type="text" id="sketKepalaDesa" 
+                                   class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none" 
+                                   placeholder="APIPUDIN,SIP">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Sekretaris Desa</label>
+                            <input type="text" id="sketSekretaris" 
+                                   class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none" 
+                                   placeholder="Sekretaris Desa">
+                        </div>
+                    </div>
+                    
+                    <!-- Action Buttons -->
+                    <div class="flex gap-3 mt-6">
+                        <button onclick="saveProfilSKET()" 
+                                class="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 rounded-lg font-bold hover:from-green-700 hover:to-emerald-700 transition shadow-lg">
+                            💾 Simpan Profil Surat Keterangan
+                        </button>
+                        <button onclick="closeProfilSKETModal()" 
+                                class="px-6 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-400 transition">
+                            Batal
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- JAVASCRIPT APPLICATION LOGIC -->
+    <script src="script.js"></script>
+</body>
+</html>

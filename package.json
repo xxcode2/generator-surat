@@ -1,0 +1,24 @@
+{
+  "name": "generator-surat",
+  "version": "3.0.0",
+  "description": "Generator Surat Desa - Sistem Administrasi Digital",
+  "main": "index_new.html",
+  "scripts": {
+    "dev": "npx live-server --port=3000 --host=0.0.0.0 --open=index_new.html --watch=. --wait=500",
+    "start": "npm run dev",
+    "serve": "npx http-server -p 3000 -o index_new.html",
+    "preview": "npx live-server --port=8080 --host=0.0.0.0 --open=index_new.html"
+  },
+  "keywords": [
+    "surat",
+    "desa",
+    "administrasi",
+    "generator",
+    "document"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "live-server": "^1.2.2"
+  }
+}
